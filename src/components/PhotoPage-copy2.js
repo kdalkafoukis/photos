@@ -124,17 +124,13 @@ class PhotoPage extends Component {
     const canvas = document.getElementById('canvas2');
     const ctx2 = canvas.getContext('2d');
     // ctx2.drawImage(img, 0, 0, width, height);
-    const factor = 4;
-
-    canvas.height = height/factor;
-    canvas.width = width/factor;
-
-    ctx2.drawImage(img, 0, 0, width/factor, height/factor);
+    canvas.height = height;
+    canvas.width = width;
+    ctx2.drawImage(img, 0, 0, width/3, height/3);
 
     if(width<height){
       ctx2.canvas.style.width = 'auto';
       ctx2.canvas.style.maxHeight = '100%';
-      ctx2.canvas.style.maxWidth = '100%';
     }
     else {
       ctx2.canvas.style.height = 'auto';
@@ -147,15 +143,15 @@ class PhotoPage extends Component {
             type: 'image/jpeg',
             lastModified: Date.now()
         });
-        console.log('reduced',file.size);
-    }, 'image/jpeg', 0.9);
+        console.log(file);
+    }, 'image/jpeg', 1);
   }
 
   loadImage = () => {
 
     const reader = new FileReader();
     reader.readAsDataURL(this.props.file);
-    console.log('init',this.props.file.size);
+    console.log(this.props.file.size);
     reader.onload = event => {
         const img = new Image();
         img.src = event.target.result;
@@ -176,7 +172,6 @@ class PhotoPage extends Component {
           if(width<height){
             ctx.canvas.style.width = 'auto';
             ctx.canvas.style.maxHeight = '100%';
-            ctx.canvas.style.maxWidth = '100%';
           }
           else {
             ctx.canvas.style.height = 'auto';
@@ -188,12 +183,10 @@ class PhotoPage extends Component {
                   type: 'image/jpeg',
                   lastModified: Date.now()
               });
-              console.log('original',file.size);
-          }, 'image/jpeg', 0.9);
+              console.log(file);
+          }, 'image/jpeg', 1);
 
-          const test = ctx.canvas.toDataURL('image/jpeg',1.0).split(",")[1]
           this.resize(img,height,width);
-
         }
     }
 
@@ -225,8 +218,8 @@ class PhotoPage extends Component {
             <input type='text' className='inputtext' value={this.state.value} onChange={this.handleChange} />
           </div>
           <div className='picture'>
-            <canvas style={{display:'block'}}  id='canvas'></canvas >
-            <canvas style={{display:'none'}} id='canvas2'></canvas>
+            <canvas id='canvas'></canvas >
+            <canvas style={{display:'none'}}  id='canvas2'></canvas >
           </div>
           <div className='buttonwrapper'>
             <Button className='sendbutton' onClick={this.sendFile}>
