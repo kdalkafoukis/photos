@@ -123,7 +123,6 @@ class PhotoPage extends Component {
   resize = (img,height,width) =>{
     const canvas = document.getElementById('canvas2');
     const ctx2 = canvas.getContext('2d');
-    // ctx2.drawImage(img, 0, 0, width, height);
     const factor = 4;
 
     canvas.height = height/factor;
@@ -172,7 +171,6 @@ class PhotoPage extends Component {
 
           console.log(ctx.canvas.style);
           ctx.drawImage(img, 0, 0, width, height);
-          // ctx.drawImage(img, 0, 0, width/3, height/3);
           if(width<height){
             ctx.canvas.style.width = 'auto';
             ctx.canvas.style.maxHeight = '100%';
@@ -193,7 +191,8 @@ class PhotoPage extends Component {
 
           const test = ctx.canvas.toDataURL('image/jpeg',1.0).split(",")[1]
           this.resize(img,height,width);
-
+          // second technick check if the file size of test is < threshold.
+          // call recursively the test with different jpeg quality like 0.5 step
         }
     }
 
