@@ -1,3 +1,4 @@
+// resize the canvas - on the background
 import React, { Component } from 'react';
 import loadImage from 'blueimp-load-image';
 import Button from '@material-ui/core/Button';
@@ -20,7 +21,7 @@ class PhotoPage extends Component {
       message: '',
       value: '',
       sending: false
-    };;
+    };
 
     this.base64 = null;
   }
@@ -123,14 +124,17 @@ class PhotoPage extends Component {
   resize = (img,height,width) =>{
     const canvas = document.getElementById('canvas2');
     const ctx2 = canvas.getContext('2d');
-    // ctx2.drawImage(img, 0, 0, width, height);
-    canvas.height = height;
-    canvas.width = width;
-    ctx2.drawImage(img, 0, 0, width/3, height/3);
+    const factor = 4;
+
+    canvas.height = height/factor;
+    canvas.width = width/factor;
+
+    ctx2.drawImage(img, 0, 0, width/factor, height/factor);
 
     if(width<height){
       ctx2.canvas.style.width = 'auto';
       ctx2.canvas.style.maxHeight = '100%';
+      ctx2.canvas.style.maxWidth = '100%';
     }
     else {
       ctx2.canvas.style.height = 'auto';
@@ -143,15 +147,15 @@ class PhotoPage extends Component {
             type: 'image/jpeg',
             lastModified: Date.now()
         });
-        console.log(file);
-    }, 'image/jpeg', 1);
+        console.log('reduced',file.size);
+    }, 'image/jpeg', 0.9);
   }
 
   loadImage = () => {
 
     const reader = new FileReader();
     reader.readAsDataURL(this.props.file);
-    console.log(this.props.file.size);
+    console.log('init',this.props.file.size);
     reader.onload = event => {
         const img = new Image();
         img.src = event.target.result;
@@ -168,10 +172,10 @@ class PhotoPage extends Component {
 
           console.log(ctx.canvas.style);
           ctx.drawImage(img, 0, 0, width, height);
-          // ctx.drawImage(img, 0, 0, width/3, height/3);
           if(width<height){
             ctx.canvas.style.width = 'auto';
             ctx.canvas.style.maxHeight = '100%';
+            ctx.canvas.style.maxWidth = '100%';
           }
           else {
             ctx.canvas.style.height = 'auto';
@@ -183,10 +187,13 @@ class PhotoPage extends Component {
                   type: 'image/jpeg',
                   lastModified: Date.now()
               });
-              console.log(file);
-          }, 'image/jpeg', 1);
+              console.log('original',file.size);
+          }, 'image/jpeg', 0.9);
 
+          const test = ctx.canvas.toDataURL('image/jpeg',1.0).split(",")[1]
           this.resize(img,height,width);
+          // second technick check if the file size of test is < threshold.
+          // call recursively the test with different jpeg quality like 0.5 step
         }
     }
 
@@ -218,8 +225,8 @@ class PhotoPage extends Component {
             <input type='text' className='inputtext' value={this.state.value} onChange={this.handleChange} />
           </div>
           <div className='picture'>
-            <canvas id='canvas'></canvas >
-            <canvas style={{display:'none'}}  id='canvas2'></canvas >
+            <canvas style={{display:'block'}}  id='canvas'></canvas >
+            <canvas style={{display:'none'}} id='canvas2'></canvas>
           </div>
           <div className='buttonwrapper'>
             <Button className='sendbutton' onClick={this.sendFile}>

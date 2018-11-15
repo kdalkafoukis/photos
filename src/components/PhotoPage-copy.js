@@ -1,3 +1,4 @@
+// calculateNewSize important
 import React, { Component } from 'react';
 import loadImage from 'blueimp-load-image';
 import Button from '@material-ui/core/Button';
