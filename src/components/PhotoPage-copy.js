@@ -121,55 +121,42 @@ class PhotoPage extends Component {
   }
 
   loadImage = () => {
+    loadImage(
+      this.props.file, (img) =>{
+        document.getElementById('picture').appendChild(img);
+        const canvas = document.getElementsByTagName('canvas')[0];
+        const ctx = canvas.getContext("2d");
 
-    const reader = new FileReader();
-    reader.readAsDataURL(this.props.file);
-    console.log(this.props.file.size);
-    reader.onload = event => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          // const picture = document.getElementById('picture');
-          const canvas = document.getElementById('canvas');
-          const ctx = canvas.getContext('2d');
+        let width = canvas.width;
+        let height = canvas.height;
+        // console.log('old height,width',height,width);
 
-          let width = img.naturalWidth;
-          let height = img.naturalHeight;
-          // console.log(width,height);
+        const size = this.calculateNewSize(height,width,0.05);
 
+        // console.log('new height,width',size.height,size.width);
 
-          canvas.height = height;
-          canvas.width = width;
+        // setTimeout(()=>{
+        //   ctx.drawImage(img, 0, 0, size.width, size.height);
+        // }, 100);
+        // console.log();
+        ctx.drawImage(img, 0, 0, size.width, size.height);
 
-          console.log(ctx.canvas.style);
-          // ctx.drawImage(img, 0, 0, width, height);
-          ctx.drawImage(img, 0, 0, width/3, height/3);
-          if(width<height){
-            ctx.canvas.style.width = 'auto';
-            ctx.canvas.style.maxHeight = '100%';
-            ctx.canvas.style.maxWidth = '100%';
-            // ctx.canvas.style.alignItems = 'center';
-            // ctx.canvas.style.justifySelf = 'center';
-          }
-          else {
-            ctx.canvas.style.height = 'auto';
-            ctx.canvas.style.maxWidth = '100%';
-            ctx.canvas.style.maxHeight = '100%';
-            // ctx.canvas.style.alignItems = 'center';
-            // ctx.canvas.style.justifySelf = 'center';
-          }
-
-          ctx.canvas.toBlob((blob) => {
-              const file = new File([blob], 'fileName', {
-                  type: 'image/jpeg',
-                  lastModified: Date.now()
-              });
-              console.log(file);
-          }, 'image/jpeg', 1);
+        if(width<height){
+          canvas.style.width = 'auto';
+          canvas.style.maxHeight = '100%';
         }
-        console.log(img);
-    }
+        else {
+          canvas.style.height = 'auto';
+          canvas.style.maxWidth = '100%';
+          canvas.style.maxHeight = '100%';
+        }
+        console.log(canvas,ctx);
+        this.base64 = canvas.toDataURL("image/jpeg").split(",")[1];
+        // ctx.clearRect(0, 0,width, height); // clear canvas
 
+      },
+      { orientation: true }
+    );
   }
 
   componentDidMount() {
@@ -197,9 +184,7 @@ class PhotoPage extends Component {
             Enter some text:
             <input type='text' className='inputtext' value={this.state.value} onChange={this.handleChange} />
           </div>
-          <div className='picture'>
-            <canvas id='canvas'></canvas >
-          </div>
+          <div className='picture' id='picture'></div>
           <div className='buttonwrapper'>
             <Button className='sendbutton' onClick={this.sendFile}>
               Send Photo
