@@ -88,8 +88,9 @@ class PhotoPage extends Component {
 
   resize = async (file) =>{
     const imageFile = file;
-    const maxSizeMB = 5;
-    const compressedFile = await imageCompression(imageFile, maxSizeMB);
+
+    const maxSizeMB = 5
+    const compressedFile = await imageCompression(imageFile, maxSizeMB)
     try{
       console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`,imageFile);
       console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`,compressedFile); // smaller than maxSizeMB
@@ -100,17 +101,58 @@ class PhotoPage extends Component {
     }
   }
 
-  loadImage = async() => {
-    const file = this.props.file;
-    const resized_file = this.resize(file);
+  // loadImage = async() => {
+  //   const file = this.props.file
+  //   // const resized_file = this.resize(file);
+  //
+  //   loadImage(
+  //     file, (img) =>{
+  //       const canvas = document.getElementById('canvas');
+  //       const width = canvas.width;
+  //       const height = canvas.height;
+  //
+  //       if(width<height){
+  //         canvas.style.width = 'auto';
+  //         canvas.style.maxHeight = '100%';
+  //         canvas.style.maxWidth = '100%';
+  //
+  //       }
+  //       else {
+  //         canvas.style.height = 'auto';
+  //         canvas.style.maxWidth = '100%';
+  //         canvas.style.maxHeight = '100%';
+  //       }
+  //
+  //       this.base64 = canvas.toDataURL("image/jpeg").split(",")[1];
+  //     },
+  //     { orientation: true }
+  //   );
+  // }
 
-    loadImage(
-      file, (img) =>{
-        document.getElementById('picture').appendChild(img);
-        const canvas = document.getElementsByTagName('canvas')[0];
-        const width = canvas.width;
-        const height = canvas.height;
-        const style = canvas.style;
+  loadImage = async() => {
+    const file = this.props.file
+    const resized_file = this.resize(file);
+    // await resized_file;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(this.props.file);
+
+    reader.onload = event => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = img.naturalWidth;
+        let height = img.naturalHeight;
+
+        canvas.height = height;
+        canvas.width = width;
+
+        const style = ctx.canvas.style;
+
+        ctx.drawImage(img, 0, 0, width, height);
 
         if(width<height){
           style.width = 'auto';
@@ -123,10 +165,9 @@ class PhotoPage extends Component {
           style.maxHeight = '100%';
         }
 
-        this.base64 = canvas.toDataURL("image/jpeg").split(",")[1];
-      },
-      { orientation: true }
-    );
+        const x = ctx.canvas.toDataURL('image/jpeg',1.0).split(",")[1];
+      }
+    }
   }
 
   componentDidMount() {
@@ -154,7 +195,9 @@ class PhotoPage extends Component {
             Enter some text:
             <input type='text' className='inputtext' value={this.state.value} onChange={this.handleChange} />
           </div>
-          <div id='picture' className='picture'></div>
+          <div className='picture'>
+            <canvas id='canvas'></canvas >
+          </div>
           <div className='buttonwrapper'>
             <Button className='sendbutton' onClick={this.sendFile}>
               Send Photo
