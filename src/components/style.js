@@ -1,4 +1,4 @@
-export const OSsource = {
+const OSsource = {
   "tilejson": "2.2.0",
   "id": "os-zoom",
   "name": "os-zoom",
@@ -207,7 +207,7 @@ export const OSsource = {
   ]
 }
 
-export const OSstyle = {
+const OSstyle = {
     "version": 8,
     "name": "OS Outdoor",
     "metadata": {
@@ -3046,19 +3046,13 @@ export const OSstyle = {
     "draft": false
 }
 
-export const MBstyle = {
+const MBstyle = {
     "version": 8,
     "name": "Basic",
     "metadata": {
         "mapbox:autocomposite": true,
         "mapbox:type": "template"
     },
-    "bounds": [
-      -11.91,
-      49.3,
-      3.61,
-      61.61
-    ],
     "sources": {
         "mapbox": {
             "url": "mapbox://mapbox.mapbox-streets-v7",
@@ -3919,3 +3913,9 @@ export const MBstyle = {
         }
     ]
 }
+
+export {
+  OSsource,
+  OSstyle,
+  MBstyle
+};

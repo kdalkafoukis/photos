@@ -18,8 +18,8 @@ import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-
 import { OSsource, OSstyle, MBstyle} from './style'
+
 const CENTER = [-0.07, 51.58];
 const ZOOM = 10;
 
@@ -55,17 +55,11 @@ class Map extends Component {
       style:MBstyle,
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
-      customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
+      // customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
     });
 
     this.map.on('load', async () => {
-      this.map.addSource('composite2',OSsource)
-
-      OSstyle.layers.forEach(layer=>{
-        // console.log('good');
-        this.map.addLayer(layer)
-      });
-
+      this.addOSLayers();
       const geojson = await photos;
       this.addFeaturesToMap(geojson);
     });
@@ -76,13 +70,22 @@ class Map extends Component {
     });
   }
 
+  addOSLayers = () =>{
+     // create a source with the name composite2
+    // the OSsource is edited to composite2 for avoiding the conflict with mapbox style
+    this.map.addSource('composite2',OSsource);
+     // inside Ordance survey style get the layers
+    // and add them to the map
+    OSstyle.layers.forEach(layer=>this.map.addLayer(layer));
+  }
+
   addFeaturesToMap = geojson => {
     this.map.addSource("data", {
         type: "geojson",
         data: geojson,
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on
-        clusterRadius: 40 // Radius of each cluster when clustering points (defaults to 50)
+        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
     });
 
     this.map.addLayer({
@@ -165,13 +168,6 @@ class Map extends Component {
         });
       });
     });
-
-    // this.map.addSource('composite2',OSsource)
-    //
-    // OSstyle.layers.forEach(layer=>{
-    //   // console.log('good');
-    //   this.map.addLayer(layer)
-    // });
 
   }
 
