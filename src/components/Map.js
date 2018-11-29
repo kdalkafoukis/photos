@@ -20,8 +20,8 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { OSsource, OSstyle, MBstyle} from './style'
 
-const CENTER = [-0.07, 51.58];
-const ZOOM = 10;
+const CENTER = [-3, 55.58];
+const ZOOM = 4;
 
 class Map extends Component {
 
