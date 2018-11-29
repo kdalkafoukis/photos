@@ -37,27 +37,13 @@ class Map extends Component {
           coordinates:{}
         }
       },
-      zoomstack:'',
     }
 
     this.map = {};
     this.renderedThumbnails = {};
-    // this.style = 'mapbox://styles/mapbox/streets-v9';
-    this.style = 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json'
   }
 
   async componentDidMount(){
-    const f = fetch(this.style);
-    const res = await f;
-    const zoomstack = await res.json();
-    this.setState({zoomstack})
-    //
-    const sources = {
-      'composite2': OSsource
-    }
-    const layers = OSstyle.layers;
-    const glyphs = 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/fonts/{fontstack}/{range}.pbf';
-
     const location = this.props.location;
     const photos = config.dbModule.fetchPhotos();
 
@@ -65,10 +51,8 @@ class Map extends Component {
 
     this.map = new mapboxgl.Map({
       container: 'map', // container id
-      // style: 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json', //stylesheet location
-      style: 'mapbox://styles/mapbox/streets-v9',
-      // style:MBstyle,
-      // style:{version:8,sources,layers,glyphs},
+      // style: 'mapbox://styles/mapbox/streets-v9',
+      style:MBstyle,
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
       customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
