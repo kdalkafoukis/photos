@@ -14,7 +14,7 @@ async function fetchPhotos() {
   const querySnapshot = await firestore.collection("photos").where("published", "==", true).get();
 
   querySnapshot.forEach( doc => {
-      console.log(`${doc.id} =>`, doc.data());
+      // console.log(`${doc.id} =>`, doc.data());
 
       const feature = {
         "type": "Feature",
