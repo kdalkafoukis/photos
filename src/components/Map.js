@@ -19,6 +19,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 
+import { OSsource, OSstyle, MBstyle} from './style'
 const CENTER = [-0.07, 51.58];
 const ZOOM = 10;
 
@@ -51,39 +52,11 @@ class Map extends Component {
     const zoomstack = await res.json();
     this.setState({zoomstack})
     //
-    // console.log('wtf',json);
-
     const sources = {
-      'terrain': {
-        type: 'vector',
-        tiles: ['https://s3-eu-west-1.amazonaws.com/tiles.os.uk/data/vector/open-zoomstack/{z}/{x}/{y}.pbf'],
-      }
+      'composite2': OSsource
     }
-    const layers = [
-      {
-        id: 'background',
-        type: 'background',
-        paint: {
-          'background-color': '#444',
-        }
-      },
-    ];
-
+    const layers = OSstyle.layers;
     const glyphs = 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/fonts/{fontstack}/{range}.pbf';
-
-    // if (this.map && !this.map.getSource('composite')) {
-    //
-    //
-    //   this.map.addSource('composite',res.sources.composite)
-    //
-    //   res.layers.forEach(layer=>{
-    //     this.map.addLayer(layer)
-    //   })
-    //
-    // }
-    // else{
-    //   console.log('wtf2222',this.map.getSource('composite'));
-    // }
 
     const location = this.props.location;
     const photos = config.dbModule.fetchPhotos();
@@ -93,28 +66,23 @@ class Map extends Component {
     this.map = new mapboxgl.Map({
       container: 'map', // container id
       // style: 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json', //stylesheet location
-      // style: 'mapbox://styles/mapbox/streets-v9',
-      style:{version:8,sources,layers,glyphs},
+      style: 'mapbox://styles/mapbox/streets-v9',
+      // style:MBstyle,
+      // style:{version:8,sources,layers,glyphs},
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
       customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
-      bounds: [
-        -11.91,
-        49.3,
-        3.61,
-        61.61
-      ],
-      // maxBounds: [
-      //   -11.91,
-      //   49.3,
-      //   3.61,
-      //   61.61
-      // ],
     });
 
     this.map.on('load', async () => {
+      this.map.addSource('composite2',OSsource)
+
+      OSstyle.layers.forEach(layer=>{
+        // console.log('good');
+        this.map.addLayer(layer)
+      });
+
       const geojson = await photos;
-      // console.log(this.map.getStyle(),this.map.getSource('composite'));
       this.addFeaturesToMap(geojson);
     });
 
@@ -214,199 +182,12 @@ class Map extends Component {
       });
     });
 
-    this.map.addSource('composite', {
-        type: 'vector',
-        tiles: [
-          "https://s3-eu-west-1.amazonaws.com/tiles.os.uk/data/vector/open-zoomstack/{z}/{x}/{y}.pbf",
-        ],
-        vector_layers: [
-          {
-            "description": "",
-            "fields": {
-              "name": "String"
-            },
-            "id": "airports",
-            "maxzoom": 14,
-            "minzoom": 10,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "type": "String"
-            },
-            "id": "boundaries",
-            "maxzoom": 14,
-            "minzoom": 5,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "buildings",
-            "maxzoom": 14,
-            "minzoom": 5,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "height": "String",
-              "type": "String"
-            },
-            "id": "contours",
-            "maxzoom": 14,
-            "minzoom": 9,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "etl",
-            "maxzoom": 14,
-            "minzoom": 12,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "foreshore",
-            "maxzoom": 14,
-            "minzoom": 9,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "function": "String"
-            },
-            "id": "greenspaces",
-            "maxzoom": 14,
-            "minzoom": 10,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "name": "String",
-              "type": "String"
-            },
-            "id": "names",
-            "maxzoom": 14,
-            "minzoom": 5,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "national-parks",
-            "maxzoom": 14,
-            "minzoom": 5,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "type": "String"
-            },
-            "id": "rail",
-            "maxzoom": 14,
-            "minzoom": 10,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "name": "String",
-              "type": "String"
-            },
-            "id": "railwaystation",
-            "maxzoom": 14,
-            "minzoom": 12,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "level": "String",
-              "name": "String",
-              "number": "String",
-              "type": "String"
-            },
-            "id": "roads",
-            "maxzoom": 14,
-            "minzoom": 5,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "sea",
-            "maxzoom": 14,
-            "minzoom": 0,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "type": "String"
-            },
-            "id": "sites",
-            "maxzoom": 14,
-            "minzoom": 11,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "surfacewater",
-            "maxzoom": 14,
-            "minzoom": 6,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {
-              "type": "String"
-            },
-            "id": "waterlines",
-            "maxzoom": 14,
-            "minzoom": 8,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          },
-          {
-            "description": "",
-            "fields": {},
-            "id": "woodland",
-            "maxzoom": 14,
-            "minzoom": 6,
-            "source": "os-zoom",
-            "source_name": "os-zoom"
-          }
-        ]
-    });
-    console.log('good',this.map.getSource('composite'));
-
-    this.state.zoomstack.layers.forEach(layer=>{
-      console.log('good');
-      this.map.addLayer(layer)
-    })
+    // this.map.addSource('composite2',OSsource)
+    //
+    // OSstyle.layers.forEach(layer=>{
+    //   // console.log('good');
+    //   this.map.addLayer(layer)
+    // });
 
   }
 
@@ -453,33 +234,7 @@ class Map extends Component {
   }
 
   func = () => {
-    console.log('hi');
-    // this.map.setStyle(this.style);
-    // fetch(this.style)
-    // .then(res=>res.json())
-    // .then(res=>{
-    //   // this.setState({zoomstack:res})
-    //   console.log('wtf',res);
-    //
-    //   if (this.map && !this.map.getSource('composite')) {
-    //
-    //     // this.map.addSource('composite', {
-    //     //     type: 'vector',
-    //     //     tiles: ['https://s3-eu-west-1.amazonaws.com/tiles.os.uk/data/vector/open-zoomstack/{z}/{x}/{y}.pbf']
-    //     // })
-    //
-    //     this.map.addSource('composite',res.sources.composite)
-    //
-    //     res.layers.forEach(layer=>{
-    //       this.map.addLayer(layer)
-    //     })
-    //
-    //   }
-    //   else{
-    //     console.log('wtf2222',this.map.getSource('composite'));
-    //   }
-    // })
-    // this.map.addLayer(highlightLayer, 'building');
+    // console.log('hi');
   }
 
   render() {
