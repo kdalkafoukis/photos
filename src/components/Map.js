@@ -46,13 +46,42 @@ class Map extends Component {
   async componentDidMount(){
     const location = this.props.location;
     const photos = config.dbModule.fetchPhotos();
-
+    const glyphs = 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/fonts/{fontstack}/{range}.pbf';
     mapboxgl.accessToken = 'pk.eyJ1Ijoia2RhbGthZm91a2lzIiwiYSI6ImNqajhia3I5cjEzdmwzcW8za3ZkYmk1MWQifQ.b15MXjz3-VA8IkyPXrJVjQ';
 
     this.map = new mapboxgl.Map({
       container: 'map', // container id
       // style: 'mapbox://styles/mapbox/streets-v9',
-      style:MBstyle,
+      // style:MBstyle,
+      style: {
+          version: 8,
+          sources: {
+              "simple-tiles": {
+                  "type": "raster",
+                  // point to our third-party tiles. Note that some examples
+                  // show a "url" property. This only applies to tilesets with
+                  // corresponding TileJSON (such as mapbox tiles).
+                  "tiles": [
+                      "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  ],
+                  "tileSize": 256,
+                  // "bounds": [
+                  //   -11.91,
+                  //   49.3,
+                  //   3.61,
+                  //   61.61
+                  // ],
+              }
+          },
+          layers: [{
+              "id": "simple-tiles",
+              "type": "raster",
+              "source": "simple-tiles",
+              "minzoom": 0,
+              "maxzoom": 22
+          }],glyphs
+      },
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
       // customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
@@ -60,8 +89,9 @@ class Map extends Component {
 
     this.map.on('load', async () => {
       this.addOSLayers();
+      // console.log(this.map.getBounds());
       const geojson = await photos;
-      console.log(geojson);
+      // console.log(geojson);
       this.addFeaturesToMap(geojson);
     });
 
@@ -151,9 +181,11 @@ class Map extends Component {
         }
     });
 
-    // this.map.on('render', e => {
-    //   console.log(e);
-    // });
+    this.map.on('render', e => {
+      // console.log(e);
+      // console.log(this.map);
+      // console.log(this.map.getBounds());
+    });
 
     this.map.on('render', 'unclustered-point', e => {
       this.updateRenderedThumbails(e.features);
