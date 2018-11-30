@@ -61,6 +61,7 @@ class Map extends Component {
     this.map.on('load', async () => {
       this.addOSLayers();
       const geojson = await photos;
+      console.log(geojson);
       this.addFeaturesToMap(geojson);
     });
 
@@ -70,7 +71,12 @@ class Map extends Component {
     });
   }
 
-  addOSLayers = () =>{
+  addOSLayers = async () =>{
+          // TODO: bring the tiles from the server
+         // const fetchOStiles = fetch('https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json')
+        // const res = await fetchOStiles;
+       // const OSsource = await res.json();
+      //
      // create a source with the name composite2
     // the OSsource is edited to composite2 for avoiding the conflict with mapbox style
     this.map.addSource('composite2',OSsource);
@@ -144,6 +150,10 @@ class Map extends Component {
             "circle-stroke-color": "#fff"
         }
     });
+
+    // this.map.on('render', e => {
+    //   console.log(e);
+    // });
 
     this.map.on('render', 'unclustered-point', e => {
       this.updateRenderedThumbails(e.features);
