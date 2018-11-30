@@ -1,3 +1,34 @@
+const OSMstyle = {
+    version: 8,
+    sources: {
+        "simple-tiles": {
+            "type": "raster",
+            // point to our third-party tiles. Note that some examples
+            // show a "url" property. This only applies to tilesets with
+            // corresponding TileJSON (such as mapbox tiles).
+            "tiles": [
+                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ],
+            "tileSize": 256,
+            "bounds": [
+              -11.91,
+              49.3,
+              3.61,
+              61.61
+            ],
+        }
+    },
+    layers: [{
+        "id": "simple-tiles",
+        "type": "raster",
+        "source": "simple-tiles",
+        "minzoom": 0,
+        "maxzoom": 22
+    }],
+    glyphs:'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/fonts/{fontstack}/{range}.pbf'
+}
+
 const OSsource = {
   "tilejson": "2.2.0",
   "id": "os-zoom",
@@ -3917,5 +3948,6 @@ const MBstyle = {
 export {
   OSsource,
   OSstyle,
-  MBstyle
+  MBstyle,
+  OSMstyle
 };
