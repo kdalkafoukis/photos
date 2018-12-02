@@ -22,7 +22,7 @@ import {
   OSsource,
   OSstyle,
   MBstyle,
-  // OSMstyle
+  OSMstyle
 } from './style'
 
 const CENTER = [-3, 55.58];
@@ -55,19 +55,31 @@ class Map extends Component {
 
     this.map = new mapboxgl.Map({
       container: 'map', // container id
-      // style: 'mapbox://styles/mapbox/streets-v9',
-      style:MBstyle,
-      // style: OSMstyle,
+      style: 'mapbox://styles/mapbox/streets-v9',
+      // style:OSstyle,
+      // style: MBstyle,
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
       // customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
     });
 
     this.map.on('load', async () => {
-      console.log(this.map);
-      this.addOSLayers();
+      this.addOSlayers();
+      // this.addMBlayers();
       // this.map.getBounds().contains(this.map.getCenter())
       // console.log(this.map.getCenter(),this.map.getBounds().contains());
+      console.log(this.map,this.map.getStyle());
+
+      ///////////////
+      // const keys = Object.keys(this.map.style.sourceCaches.composite._tiles);
+      // // const keys = this.map.style.sourceCaches.composite._tiles
+      //
+      // keys.forEach(x=>{
+      //   // console.log(x,this.map.style.sourceCaches.composite._tiles[x]);
+      //   this.map.style.sourceCaches.composite._tiles[x]=false
+      // })
+      // console.log(this.map.style.sourceCaches);
+      //////////
 
       // console.log(this.map.getBounds());
       const geojson = await photos;
@@ -81,18 +93,40 @@ class Map extends Component {
     });
   }
 
-  addOSLayers = async () =>{
-          // TODO: bring the tiles from the server
-         // const fetchOStiles = fetch('https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json')
-        // const res = await fetchOStiles;
-       // const OSsource = await res.json();
-      //
-     // create a source with the name composite2
-    // the OSsource is edited to composite2 for avoiding the conflict with mapbox style
-    this.map.addSource('composite2',OSsource);
-     // inside Ordance survey style get the layers
-    // and add them to the map
-    OSstyle.layers.forEach(layer=>this.map.addLayer(layer));
+  addOSMlayers = async () =>{
+    this.map.addSource('simple-tiles',OSMstyle.sources['simple-tiles']);
+    // console.log(this.map.getSource('simple-tiles'));
+    OSMstyle.layers.forEach(layer=>{
+      this.map.addLayer(layer);
+    });
+
+    // OSMstyle.layers.forEach(layer=>{
+    //   console.log(this.map.getLayer(layer.id));
+    // });
+  }
+
+  addMBlayers = async () =>{
+    this.map.addSource('mapbox',MBstyle.sources.mapbox);
+    // console.log(this.map.getSource('mapbox'));
+    MBstyle.layers.forEach(layer=>{
+      this.map.addLayer(layer);
+    });
+
+    // MBstyle.layers.forEach(layer=>{
+      // console.log(this.map.getLayer(layer.id));
+    // });
+  }
+
+  addOSlayers = async () =>{
+    this.map.addSource('composite2',OSstyle.sources.composite2);
+    // console.log(this.map.getSource('composite2'));
+    OSstyle.layers.forEach(layer=>{
+      this.map.addLayer(layer);
+    });
+
+    // OSstyle.layers.forEach(layer=>{
+    //   console.log(this.map.getLayer(layer.id));
+    // });
   }
 
   addFeaturesToMap = geojson => {
@@ -161,26 +195,50 @@ class Map extends Component {
         }
     });
 
-    this.map.on('render', e => {
-      // console.log(e);
-      // console.log(this.map);
-      // console.log(this.map.getBounds());
 
-      // const f = this.map.queryRenderedFeatures(null);
-      // console.log(e.target.style._layers);
-      // console.log(f);
-      Object.values(e.target.style._layers).forEach(layer=>{
-        // console.log(layer);
-        if(
-          // layer.source==='mapbox'
-          // ||
-          layer.source==='composite'
-        ){
-          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
-          // console.log('fuck');
-        }
-      });
+    this.map.on('move', e => {
+      const sources = this.map.style.sourceCaches;
+
+      const composite = Object.keys(sources.composite._tiles);
+      const composite2 = Object.keys(sources.composite2._tiles);
+      // const keys = this.map.style.sourceCaches.composite._tiles
+
+      console.log(e);
+      composite.forEach(tile=>{
+        composite2.forEach(tile2=>{
+          if (tile === tile2){
+            // this.map.style.sourceCaches.composite._tiles[tile]=false
+            console.log('victory',tile);
+          }
+        })
+        // console.log(x,this.map.style.sourceCaches.composite._tiles[x]);
+        // this.map.style.sourceCaches.composite._tiles[tile]=false
+      })
+
+      // console.log(sources);
+
     });
+
+
+    // this.map.on('render', e => {
+    //   // console.log(e);
+    //   // console.log(this.map);
+    //   // console.log(this.map.getBounds());
+    //
+    //   // const f = this.map.queryRenderedFeatures(null);
+    //   // console.log(e.target.style._layers);
+    //   // console.log(f);
+    //   Object.values(e.target.style._layers).forEach(layer=>{
+    //     // console.log(layer);
+    //     if(
+    //       // layer.source==='mapbox'
+    //       // ||
+    //       layer.source==='composite'
+    //     ){
+    //       this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+    //     }
+    //   });
+    // });
 
     this.map.on('render', 'unclustered-point', e => {
       this.updateRenderedThumbails(e.features);
