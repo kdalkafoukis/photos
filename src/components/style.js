@@ -5291,5 +5291,6 @@ export {
   OSsource,
   OSstyle,
   MBstyle,
+  MBstyle2,
   OSMstyle
 };

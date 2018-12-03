@@ -19,7 +19,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import {
-  OSsource,
+  // OSsource,
   OSstyle,
   MBstyle,
   OSMstyle
@@ -43,7 +43,6 @@ class Map extends Component {
         }
       },
     }
-
     this.map = {};
     this.renderedThumbnails = {};
   }
@@ -51,39 +50,21 @@ class Map extends Component {
   async componentDidMount(){
     const location = this.props.location;
     const photos = config.dbModule.fetchPhotos();
-    mapboxgl.accessToken = 'pk.eyJ1Ijoia2RhbGthZm91a2lzIiwiYSI6ImNqajhia3I5cjEzdmwzcW8za3ZkYmk1MWQifQ.b15MXjz3-VA8IkyPXrJVjQ';
 
     this.map = new mapboxgl.Map({
       container: 'map', // container id
-      style: 'mapbox://styles/mapbox/streets-v9',
-      // style:OSstyle,
-      // style: MBstyle,
+      style: 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json', //stylesheet location
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
-      // customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
+      customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
     });
 
     this.map.on('load', async () => {
-      this.addOSlayers();
+      // this.addOSlayers();
       // this.addMBlayers();
-      // this.map.getBounds().contains(this.map.getCenter())
-      // console.log(this.map.getCenter(),this.map.getBounds().contains());
-      console.log(this.map,this.map.getStyle());
-
-      ///////////////
-      // const keys = Object.keys(this.map.style.sourceCaches.composite._tiles);
-      // // const keys = this.map.style.sourceCaches.composite._tiles
-      //
-      // keys.forEach(x=>{
-      //   // console.log(x,this.map.style.sourceCaches.composite._tiles[x]);
-      //   this.map.style.sourceCaches.composite._tiles[x]=false
-      // })
-      // console.log(this.map.style.sourceCaches);
-      //////////
-
-      // console.log(this.map.getBounds());
+      // this.addOSMlayers();
+      // console.log(this.map,this.map.getStyle());
       const geojson = await photos;
-      // console.log(geojson);
       this.addFeaturesToMap(geojson);
     });
 
@@ -93,40 +74,25 @@ class Map extends Component {
     });
   }
 
-  addOSMlayers = async () =>{
+  addOSMlayers = () =>{
     this.map.addSource('simple-tiles',OSMstyle.sources['simple-tiles']);
-    // console.log(this.map.getSource('simple-tiles'));
     OSMstyle.layers.forEach(layer=>{
       this.map.addLayer(layer);
     });
-
-    // OSMstyle.layers.forEach(layer=>{
-    //   console.log(this.map.getLayer(layer.id));
-    // });
   }
 
-  addMBlayers = async () =>{
+  addMBlayers = () =>{
     this.map.addSource('mapbox',MBstyle.sources.mapbox);
-    // console.log(this.map.getSource('mapbox'));
     MBstyle.layers.forEach(layer=>{
       this.map.addLayer(layer);
     });
-
-    // MBstyle.layers.forEach(layer=>{
-      // console.log(this.map.getLayer(layer.id));
-    // });
   }
 
-  addOSlayers = async () =>{
+  addOSlayers = () =>{
     this.map.addSource('composite2',OSstyle.sources.composite2);
-    // console.log(this.map.getSource('composite2'));
     OSstyle.layers.forEach(layer=>{
       this.map.addLayer(layer);
     });
-
-    // OSstyle.layers.forEach(layer=>{
-    //   console.log(this.map.getLayer(layer.id));
-    // });
   }
 
   addFeaturesToMap = geojson => {
@@ -149,24 +115,8 @@ class Map extends Component {
             //   * Blue, 20px circles when point count is less than 100
             //   * Yellow, 30px circles when point count is between 100 and 750
             //   * Pink, 40px circles when point count is greater than or equal to 750
-            "circle-color": [
-                "step",
-                ["get", "point_count"],
-                "#51bbd6",
-                100,
-                "#f1f075",
-                750,
-                "#f28cb1"
-            ],
-            "circle-radius": [
-                "step",
-                ["get", "point_count"],
-                20,
-                100,
-                30,
-                750,
-                40
-            ]
+            "circle-color": ["step",["get", "point_count"],"#51bbd6",100,"#f1f075",750,"#f28cb1"],
+            "circle-radius": ["step",["get", "point_count"],20,100,30,750,40]
         }
     });
 
@@ -195,50 +145,8 @@ class Map extends Component {
         }
     });
 
-
-    this.map.on('move', e => {
-      const sources = this.map.style.sourceCaches;
-      const composite = Object.keys(sources.composite._tiles);
-      const composite2 = Object.keys(sources.composite2._tiles);
-
-      composite.forEach(tile => composite2.forEach(tile2 => {
-        if (tile === tile2){
-          const compositeTile = this.map.style.sourceCaches.composite._tiles[tile];
-          const dataTile = this.map.style.sourceCaches.data._tiles[tile];
-          // delete compositeTile;
-          // delete dataTile;
-
-          // console.log('victory',tile,this.map.style.sourceCaches);
-        }
-
-      }));
-
-    });
-
-
-    // this.map.on('render', e => {
-    //   // console.log(e);
-    //   // console.log(this.map);
-    //   // console.log(this.map.getBounds());
-    //
-    //   // const f = this.map.queryRenderedFeatures(null);
-    //   // console.log(e.target.style._layers);
-    //   // console.log(f);
-    //   Object.values(e.target.style._layers).forEach(layer=>{
-    //     // console.log(layer);
-    //     if(
-    //       // layer.source==='mapbox'
-    //       // ||
-    //       layer.source==='composite'
-    //     ){
-    //       this.map.setLayoutProperty(layer.id, 'visibility', 'none');
-    //     }
-    //   });
-    // });
-
     this.map.on('render', 'unclustered-point', e => {
       this.updateRenderedThumbails(e.features);
-      // console.log(e);
     });
 
     this.map.on('mouseenter', 'clusters', () => {
@@ -252,8 +160,7 @@ class Map extends Component {
       const features = this.map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       const clusterId = features[0].properties.cluster_id;
       this.map.getSource('data').getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err)
-            return;
+        if (err) return;
         this.map.easeTo({
             center: features[0].geometry.coordinates,
             zoom: zoom
@@ -305,10 +212,6 @@ class Map extends Component {
     this.map.remove();
   }
 
-  func = () => {
-    // console.log('hi');
-  }
-
   render() {
 
     const feature = this.state.feature;
@@ -316,7 +219,7 @@ class Map extends Component {
     const gpsDisabled = !this.props.location.updated;
     return (
       <div className="geovation-map">
-        <div onClick={this.func} className="headline">
+        <div className="headline">
           <div className="buttonwrapper">
             <Link to="/" style={{ textDecoration: 'none', display: 'block' }}>
               <Button>
@@ -331,7 +234,6 @@ class Map extends Component {
         <Button variant="fab" className="location" onClick={this.flyToGpsLocation} disabled={gpsDisabled}>
           {gpsOffline ? <GpsOff/> : <GpsFixed/>}
         </Button>
-
         <Dialog open={this.state.openDialog} onClose={this.handleDialogClose}>
           <DialogContent>
             <img onError={(e) => { e.target.src=placeholderImage}} className={"main-image"} alt={''} src={feature.properties.main}/>
@@ -350,9 +252,7 @@ class Map extends Component {
                 </CardContent>
               </CardActionArea>
             </Card>
-
           </DialogContent>
-
         </Dialog>
       </div>
     );
