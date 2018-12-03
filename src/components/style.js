@@ -40,12 +40,12 @@ const OSsource = {
   "version": "1",
   "scheme": "xyz",
   "type": "vector",
-  // "bounds": [
-  //   -11.91,
-  //   49.3,
-  //   3.61,
-  //   61.61
-  // ],
+  "bounds": [
+    -11.91,
+    49.3,
+    3.61,
+    61.61
+  ],
   "center": [
     0.85,
     51.77,
@@ -285,8 +285,14 @@ const OSstyle = {
     "sources": {
         "composite2": {
             "url": "https://s3-eu-west-1.amazonaws.com/tiles.os.uk/data/vector/open-zoomstack/config.json",
-            "type": "vector"
-        }
+            "type": "vector",
+        },
+        "bounds": [
+          -11.91,
+          49.3,
+          3.61,
+          61.61
+        ],
     },
     "sprite": "https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/sprites",
     "glyphs": "https://s3-eu-west-1.amazonaws.com/tiles.os.uk/fonts/{fontstack}/{range}.pbf",
@@ -299,52 +305,52 @@ const OSstyle = {
         //         "background-color": "#f4f4ee"
         //     }
         // },
-        // {
-        //     "id": "sea shadow",
-        //     "type": "fill",
-        //     "source": "composite2",
-        //     "source-layer": "sea",
-        //     "layout": {},
-        //     "paint": {
-        //         "fill-color": "hsl(195, 67%, 65%)",
-        //         "fill-translate": [
-        //             "interpolate",
-        //             [
-        //                 "linear"
-        //             ],
-        //             [
-        //                 "zoom"
-        //             ],
-        //             5,
-        //             [
-        //                 "literal",
-        //                 [
-        //                     -0.2,
-        //                     -0.2
-        //                 ]
-        //             ],
-        //             15,
-        //             [
-        //                 "literal",
-        //                 [
-        //                     -1,
-        //                     -1
-        //                 ]
-        //             ]
-        //         ],
-        //         "fill-translate-anchor": "viewport"
-        //     }
-        // },
-        // {
-        //     "id": "sea",
-        //     "type": "fill",
-        //     "source": "composite2",
-        //     "source-layer": "sea",
-        //     "layout": {},
-        //     "paint": {
-        //         "fill-color": "hsl(195, 68%, 80%)"
-        //     }
-        // },
+        {
+            "id": "sea shadow",
+            "type": "fill",
+            "source": "composite2",
+            "source-layer": "sea",
+            "layout": {},
+            "paint": {
+                "fill-color": "hsl(195, 67%, 65%)",
+                "fill-translate": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    5,
+                    [
+                        "literal",
+                        [
+                            -0.2,
+                            -0.2
+                        ]
+                    ],
+                    15,
+                    [
+                        "literal",
+                        [
+                            -1,
+                            -1
+                        ]
+                    ]
+                ],
+                "fill-translate-anchor": "viewport"
+            }
+        },
+        {
+            "id": "sea",
+            "type": "fill",
+            "source": "composite2",
+            "source-layer": "sea",
+            "layout": {},
+            "paint": {
+                "fill-color": "hsl(195, 68%, 80%)"
+            }
+        },
         {
             "id": "national-parks",
             "type": "fill",

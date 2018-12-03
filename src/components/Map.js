@@ -198,24 +198,20 @@ class Map extends Component {
 
     this.map.on('move', e => {
       const sources = this.map.style.sourceCaches;
-
       const composite = Object.keys(sources.composite._tiles);
       const composite2 = Object.keys(sources.composite2._tiles);
-      // const keys = this.map.style.sourceCaches.composite._tiles
 
-      console.log(e);
-      composite.forEach(tile=>{
-        composite2.forEach(tile2=>{
-          if (tile === tile2){
-            // this.map.style.sourceCaches.composite._tiles[tile]=false
-            console.log('victory',tile);
-          }
-        })
-        // console.log(x,this.map.style.sourceCaches.composite._tiles[x]);
-        // this.map.style.sourceCaches.composite._tiles[tile]=false
-      })
+      composite.forEach(tile => composite2.forEach(tile2 => {
+        if (tile === tile2){
+          const compositeTile = this.map.style.sourceCaches.composite._tiles[tile];
+          const dataTile = this.map.style.sourceCaches.data._tiles[tile];
+          // delete compositeTile;
+          // delete dataTile;
 
-      // console.log(sources);
+          // console.log('victory',tile,this.map.style.sourceCaches);
+        }
+
+      }));
 
     });
 
