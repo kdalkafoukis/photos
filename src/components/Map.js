@@ -20,11 +20,13 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import {
   // OSsource,
-  OMTstyle,
+  // OMTstyle,
   OSstyle,
   MBstyle,
   OSMstyle
-} from './style'
+} from './style';
+
+import * as turf from '@turf/turf';
 
 const CENTER = [-3, 55.58];
 const ZOOM = 4;
@@ -56,9 +58,9 @@ class Map extends Component {
     mapboxgl.accessToken='pk.eyJ1Ijoic2ViYXN0aWFub3ZpZGVnZW92YXRpb251ayIsImEiOiJjanA4ZWwwbTkxdDNxM2twZTgyMGdqOXB5In0.MrWFt3rABCo7n7MBbVRaNw'
     this.map = new mapboxgl.Map({
       container: 'map', // container id
-      // style: 'https://maps.tilehosting.com/styles/basic/style.json?key=Wrowlsxw7StlrAIvO6Rz', //stylesheet location
-      // style: OMTstyle,
       style: 'mapbox://styles/mapbox/streets-v10',
+      // style: 'https://maps.tilehosting.com/styles/basic/style.json?key=Wrowlsxw7StlrAIvO6Rz', //stylesheet location
+      // style: OSstyle,
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
       customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
@@ -150,6 +152,10 @@ class Map extends Component {
         }
     });
 
+    this.map.on('move', e => {
+      this.updateLayers();
+    });
+
     this.map.on('render', 'unclustered-point', e => {
       this.updateRenderedThumbails(e.features);
     });
@@ -217,16 +223,38 @@ class Map extends Component {
     this.map.remove();
   }
 
-  changeStyle = () => {
-    let visibility
-    this.control ? visibility = 'visible' : visibility = 'none';
-    this.control = !this.control;
-    this.map.getStyle().layers.forEach(layer => {
-      if ( layer.source === 'composite' && layer.id!=='water'){
-        this.map.setLayoutProperty(layer.id, 'visibility',visibility);
-      }
-    })
+  updateLayers = () => {
+    const layers = this.map.getStyle().layers
+    const bbox = [-11.91,49.3,3.61,61.61];
+    const bboxPolygon = turf.bboxPolygon(bbox);
 
+    const bounds = this.map.getBounds();
+    const currentBounds = [
+      bounds._ne.lng,bounds._ne.lat,
+      bounds._sw.lng,bounds._sw.lat
+    ];
+    const boundsPolygon = turf.bboxPolygon(currentBounds);
+
+    const contains = turf.booleanContains(bboxPolygon, boundsPolygon);
+
+    if(contains){
+      if(this.map.getLayoutProperty(layers[1].id, 'visibility')==='visible'){
+          layers.forEach(layer => {
+            if (layer.source === 'composite' && layer.id!=='water'){
+              this.map.setLayoutProperty(layer.id, 'visibility','none');
+            }
+          });
+      }
+    }
+    else{
+      if(this.map.getLayoutProperty(layers[1].id, 'visibility')==='none'){
+          layers.forEach(layer => {
+            if (layer.source === 'composite' && layer.id!=='water'){
+              this.map.setLayoutProperty(layer.id, 'visibility','visible');
+            }
+          });
+      }
+    }
   }
 
   render() {
