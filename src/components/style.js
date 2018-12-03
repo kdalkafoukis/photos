@@ -334,16 +334,16 @@ const OSstyle = {
         //         "fill-translate-anchor": "viewport"
         //     }
         // },
-        {
-            "id": "sea",
-            "type": "fill",
-            "source": "composite2",
-            "source-layer": "sea",
-            "layout": {},
-            "paint": {
-                "fill-color": "hsl(195, 68%, 80%)"
-            }
-        },
+        // {
+        //     "id": "sea",
+        //     "type": "fill",
+        //     "source": "composite2",
+        //     "source-layer": "sea",
+        //     "layout": {},
+        //     "paint": {
+        //         "fill-color": "hsl(195, 68%, 80%)"
+        //     }
+        // },
         {
             "id": "national-parks",
             "type": "fill",
