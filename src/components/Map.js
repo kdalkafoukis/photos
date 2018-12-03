@@ -20,6 +20,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import {
   // OSsource,
+  OMTstyle,
   OSstyle,
   MBstyle,
   OSMstyle
@@ -45,22 +46,26 @@ class Map extends Component {
     }
     this.map = {};
     this.renderedThumbnails = {};
+    this.control = false;
   }
 
   async componentDidMount(){
     const location = this.props.location;
     const photos = config.dbModule.fetchPhotos();
 
+    mapboxgl.accessToken='pk.eyJ1Ijoic2ViYXN0aWFub3ZpZGVnZW92YXRpb251ayIsImEiOiJjanA4ZWwwbTkxdDNxM2twZTgyMGdqOXB5In0.MrWFt3rABCo7n7MBbVRaNw'
     this.map = new mapboxgl.Map({
       container: 'map', // container id
-      style: 'https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json', //stylesheet location
+      // style: 'https://maps.tilehosting.com/styles/basic/style.json?key=Wrowlsxw7StlrAIvO6Rz', //stylesheet location
+      // style: OMTstyle,
+      style: 'mapbox://styles/mapbox/streets-v10',
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
       customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018',
     });
 
     this.map.on('load', async () => {
-      // this.addOSlayers();
+      this.addOSlayers();
       // this.addMBlayers();
       // this.addOSMlayers();
       // console.log(this.map,this.map.getStyle());
@@ -212,6 +217,18 @@ class Map extends Component {
     this.map.remove();
   }
 
+  changeStyle = () => {
+    let visibility
+    this.control ? visibility = 'visible' : visibility = 'none';
+    this.control = !this.control;
+    this.map.getStyle().layers.forEach(layer => {
+      if ( layer.source === 'composite' && layer.id!=='water'){
+        this.map.setLayoutProperty(layer.id, 'visibility',visibility);
+      }
+    })
+
+  }
+
   render() {
 
     const feature = this.state.feature;
@@ -227,7 +244,7 @@ class Map extends Component {
               </Button>
             </Link>
           </div>
-          <div className="headtext">Map</div>
+          <div onClick={this.changeStyle} className="headtext">Map</div>
           <div className="headspace"/>
         </div>
         <div id='map' className="map"></div>
