@@ -99,7 +99,7 @@ class App extends Component {
 
   componentDidMount(){
     //if user is in Map TAB show the Map, else hide it
-    if (this.state.tab.path == '/') {
+    if (this.state.tab.path === '/') {
       this.showMap();
     }
     else {
@@ -193,7 +193,6 @@ class App extends Component {
   }
 
   render() {
-    console.log('render',this.state);
     return (
       <div className="geovation-app">
         <Header headline={this.state.tab.title}/>
