@@ -52,7 +52,7 @@ class Map extends Component {
       style: 'mapbox://styles/mapbox/streets-v10',
       center: location.updated ? [location.longitude, location.latitude] : CENTER, // starting position [lng, lat]
       zoom: ZOOM, // starting zoom
-      customAttribution: 'Contains OS data &copy; Crown copyright and database rights 2018'
+      // customAttribution: 'Contains OS data &copy;Crown copyright and database rights 2018'
     });
 
     this.map.on('load', async () => {
@@ -184,7 +184,7 @@ class Map extends Component {
         }
     });
 
-    this.map.on('move', e => {
+    this.map.on('move', () => {
       this.updateLayerVisibility();
     });
 

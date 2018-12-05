@@ -36,6 +36,10 @@ const TABS = {
   moderator: {
     path: "/moderator",
     title: "Moderator"
+  },
+  logout:{
+    path: "/",
+    title:'Logout'
   }
 };
 
@@ -94,6 +98,14 @@ class App extends Component {
   }
 
   componentDidMount(){
+    //if user is in Map TAB show the Map, else hide it
+    if (this.state.tab.path == '/') {
+      this.showMap();
+    }
+    else {
+      this.hideMap();
+    }
+
     this.unregisterConnectionObserver = config.dbModule.onConnectionStateChanged(online => {
       this.setState({online});
     });
@@ -104,9 +116,9 @@ class App extends Component {
 
     this.unregisterAuthObserver = config.authModule.onAuthStateChanged(user => {
 
-      // lets start fresh if the user logged out
+      // if the user logs out go to Map Tab
       if (this.state.isSignedIn && !user) {
-        window.location.reload();
+        this.handleTab(null,TABS.map)
       }
 
       this.setState({isSignedIn: user});
@@ -126,9 +138,31 @@ class App extends Component {
     await this.unregisterConnectionObserver();
   }
 
+  hideMap = () => {
+    const collapse = document.getElementById('collapse');
+    collapse.style.visibility = 'hidden';
+  }
+
+  showMap = () => {
+    const collapse = document.getElementById('collapse');
+    collapse.style.visibility = 'visible';
+  }
+
   handleTab = (event, value) => {
     this.setState({ tab: value });
-    this.props.history.push(value.path);
+
+    const current_path = this.props.location.pathname;
+    //check to remove warning of pushing to the same history path
+    if (value.path !== current_path){
+      this.props.history.push(value.path);
+    }
+
+    if (value.path==='/'){
+      this.showMap();
+    }
+    else {
+      this.hideMap();
+    }
   }
 
   handleClickLoginLogout = () => {
@@ -147,7 +181,9 @@ class App extends Component {
   };
 
   handlePhotoClick = () => {
-    if (this.domRefInput.current) { this.domRefInput.current.click(); }
+    if (this.domRefInput.current) {
+      this.domRefInput.current.click();
+    }
   };
 
   openFile = (e) => {
@@ -157,11 +193,18 @@ class App extends Component {
   }
 
   render() {
+    console.log('render',this.state);
     return (
       <div className="geovation-app">
         <Header headline={this.state.tab.title}/>
-
         <main className="content" tab={this.state.tab}>
+          <div id='collapse'
+               style={{
+                position:'fixed',left: '0px',top: '0px',
+                right: '0px',bottom: '48px'
+          }}>
+            <Map location={this.state.location}/>
+          </div>
           <Switch>
             {/*<Route exact path='/' render={(props) =>*/}
               {/*<LandingPage {...props}*/}
@@ -186,7 +229,6 @@ class App extends Component {
               />}
             />
             <Route path='/signedin' component={SignedinPage} />
-            <Route path='/' render={(props) => <Map {...props} location={this.state.location} />}/>
           </Switch>
         </main>
 
@@ -202,8 +244,8 @@ class App extends Component {
             <Tab icon={<AddAPhotoIcon />} value={TABS.photos} onClick={this.handlePhotoClick} />
             {/*<Tab icon={<PersonPinIcon />} value={{path: "/profile"}}/>*/}
 
-            {!this.state.isSignedIn && <Tab icon={<PersonPinIcon />} disabled={!this.state.online} onClick={this.handleClickLoginLogout}/>}
-            {this.state.isSignedIn && <Tab icon={<ExitToAppIcon />} value={{path: "/"}} onClick={this.handleClickLoginLogout}/>}
+            {!this.state.isSignedIn && <Tab icon={<PersonPinIcon />} value={TABS.logout}  disabled={!this.state.online} onClick={this.handleClickLoginLogout}/>}
+            {this.state.isSignedIn && <Tab icon={<ExitToAppIcon />} value={TABS.logout} onClick={this.handleClickLoginLogout}/>}
             {config.authModule.isModerator() && <Tab icon={<CheckIcon />} value={TABS.moderator}/>}
 
           </Tabs>
@@ -219,7 +261,7 @@ class App extends Component {
         </RootRef>
 
         <Login
-          open={this.state.loginLogoutDialogOpen && !this.state.isSignedIn}
+          open={this.state.loginLogoutDialogOpen && this.state.isSignedIn !== undefined && !this.state.isSignedIn}
           handleClose={this.handleLoginClose}
           loginComponent={config.loginComponent}
         />
