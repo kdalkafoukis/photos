@@ -1,23 +1,10 @@
 import React from 'react';
 
 class Login extends React.Component {
-
   /**
    *
-   * @param props are {open, handleClose, loginName  }
+   * @param props are { handleClose, loginName  }
    */
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      open: false
-    };
-    }
-
-  handleClose = () => {
-    this.props.handleClose();
-    return true;
-  };
 
   render() {
     const Component = this.props.loginComponent;

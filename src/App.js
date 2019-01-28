@@ -53,7 +53,6 @@ class App extends Component {
       user: null,
       photosToModerate: [],
       online: false,
-      loginLogoutDialogOpen: false,
       openPhotoDialog: false,
       leftDrawerOpen: false,
       welcomeShown: !!localStorage.getItem("welcomeShown"),
@@ -154,21 +153,13 @@ class App extends Component {
     if (prevProps.location !== this.props.location) {
       gtagPageView(this.props.location.pathname);
     }
+    console.log(this.state.user);
   }
 
   handleClickLoginLogout = () => {
-    let loginLogoutDialogOpen = true;
-
     if (this.state.user) {
       authFirebase.signOut();
-      loginLogoutDialogOpen = false;
     }
-
-    this.setState({ loginLogoutDialogOpen });
-  };
-
-  handleLoginClose = () => {
-    this.setState({ loginLogoutDialogOpen:false});
   };
 
   handlePhotoClick = () => {
@@ -222,112 +213,113 @@ class App extends Component {
     const { classes } = this.props;
     return (
       <div className='geovation-app'>
-        <main className='content'>
-          { this.state.welcomeShown &&
-            <Switch>
-              {config.CUSTOM_PAGES.map( (CustomPage,index) => (
-                !!CustomPage.page &&
-                  <Route key={index} path={CustomPage.path}
-                    render={(props) => <CustomPage.page {...props} handleClose={this.goToMap}/>}
+        {!this.state.user
+          ?
+          <Login
+            loginComponent={LoginFirebase}
+          />
+          :
+          <div className='geovation-app'>
+            <main className='content'>
+              { this.state.welcomeShown &&
+                <Switch>
+                  {config.CUSTOM_PAGES.map( (CustomPage,index) => (
+                    !!CustomPage.page &&
+                      <Route key={index} path={CustomPage.path}
+                        render={(props) => <CustomPage.page {...props} handleClose={this.goToMap}/>}
+                      />
+                  ))}
+                  <Route path={PAGES.about.path} render={(props) =>
+                    <AboutPage {...props} handleClose={this.goToMap} />}
                   />
-              ))}
-              <Route path={PAGES.about.path} render={(props) =>
-                <AboutPage {...props} handleClose={this.goToMap} />}
-              />
-              <Route path={PAGES.tutorial.path} render={(props) =>
-                <TutorialPage {...props} handleClose={this.handleWelcomePageClose} />}
-              />
+                  <Route path={PAGES.tutorial.path} render={(props) =>
+                    <TutorialPage {...props} handleClose={this.handleWelcomePageClose} />}
+                  />
 
-              { this.state.user && this.state.user.isModerator &&
-                <Route path={PAGES.moderator.path} render={(props) =>
-                  <ModeratorPage {...props} handleClose={this.goToMap} />}
-                />
-              }
+                  { this.state.user && this.state.user.isModerator &&
+                    <Route path={PAGES.moderator.path} render={(props) =>
+                      <ModeratorPage {...props} handleClose={this.goToMap} />}
+                    />
+                  }
 
-              <Route path={PAGES.photos.path} render={(props) =>
-                <PhotoPage {...props}
-                           file={this.state.file}
-                           location={this.state.location}
-                           online={this.state.online}
-                           handlePhotoClick={this.handlePhotoClick}
-                           handleClose={this.goToMap}
-                />}
-              />
-
-              { this.state.user &&
-                <Route path={PAGES.account.path} render={(props) =>
-                  <ProfilePage {...props}
-                               user={this.state.user}
+                  <Route path={PAGES.photos.path} render={(props) =>
+                    <PhotoPage {...props}
+                               file={this.state.file}
+                               location={this.state.location}
+                               online={this.state.online}
+                               handlePhotoClick={this.handlePhotoClick}
                                handleClose={this.goToMap}
-                  />}
-                />
+                    />}
+                  />
+
+                  { this.state.user &&
+                    <Route path={PAGES.account.path} render={(props) =>
+                      <ProfilePage {...props}
+                                   user={this.state.user}
+                                   handleClose={this.goToMap}
+                      />}
+                    />
+                  }
+
+                  <Route path={PAGES.writeFeedback.path} render={(props) =>
+                     <WriteFeedbackPage {...props}
+                                        user={this.state.user}
+                                        location={this.state.location}
+                                        online={this.state.online}
+                                        handleClose={this.goToMap}
+                     />}
+                   />
+
+                </Switch>
               }
 
-              <Route path={PAGES.writeFeedback.path} render={(props) =>
-                 <WriteFeedbackPage {...props}
-                                    user={this.state.user}
-                                    location={this.state.location}
-                                    online={this.state.online}
-                                    handleClose={this.goToMap}
-                 />}
-               />
+              { !this.state.welcomeShown && this.props.history.location.pathname !== PAGES.embeddable.path &&
+                <TutorialPage {...this.props} handleClose={this.handleWelcomePageClose}/>
+              }
 
-            </Switch>
-          }
+              <Map location={this.state.location}
+                  visible={[PAGES.map.path, PAGES.embeddable.path].includes(this.props.history.location.pathname)}
+                  welcomeShown={this.state.welcomeShown || this.props.history.location.pathname === PAGES.embeddable.path}
+                  photos={this.state.photos}
+              />
 
-          { !this.state.welcomeShown && this.props.history.location.pathname !== PAGES.embeddable.path &&
-            <TutorialPage {...this.props} handleClose={this.handleWelcomePageClose}/>
-          }
+              <Dehaze className={classes.burger} onClick={this.toggleLeftDrawer(true)}
+                style={{
+                  display: this.state.welcomeShown && this.props.history.location.pathname === PAGES.map.path
+                  ? 'block'
+                  : 'none'
+                }}
+              />
 
-          <Map location={this.state.location}
-              visible={[PAGES.map.path, PAGES.embeddable.path].includes(this.props.history.location.pathname)}
-              welcomeShown={this.state.welcomeShown || this.props.history.location.pathname === PAGES.embeddable.path}
-              photos={this.state.photos}
-          />
+              <Fab className={classes.camera} color="secondary" onClick={this.handlePhotoClick}
+                style={{
+                  display: this.state.welcomeShown && this.props.history.location.pathname === PAGES.map.path
+                  ? 'flex'
+                  : 'none'
+                }}
+              >
+                <AddAPhotoIcon />
+              </Fab>
+            </main>
 
-          <Dehaze className={classes.burger} onClick={this.toggleLeftDrawer(true)}
-            style={{
-              display: this.state.welcomeShown && this.props.history.location.pathname === PAGES.map.path
-              ? 'block'
-              : 'none'
-            }}
-          />
+            <Snackbar open={this.state.welcomeShown && !this.state.online} message='Network not available' />
 
-          <Fab className={classes.camera} color="secondary" onClick={this.handlePhotoClick}
-            style={{
-              display: this.state.welcomeShown && this.props.history.location.pathname === PAGES.map.path
-              ? 'flex'
-              : 'none'
-            }}
-          >
-            <AddAPhotoIcon />
-          </Fab>
-        </main>
-
-        <Snackbar open={this.state.welcomeShown && !this.state.online} message='Network not available' />
-
-        { window.cordova ?
-          <CustomPhotoDialog open={this.state.openPhotoDialog} onClose={this.handlePhotoDialogClose}/>
-        :
-          <RootRef rootRef={this.domRefInput}>
-            <input className='hidden' type='file' accept='image/*'
-                   onChange={this.openFile}
+            { window.cordova ?
+              <CustomPhotoDialog open={this.state.openPhotoDialog} onClose={this.handlePhotoDialogClose}/>
+            :
+              <RootRef rootRef={this.domRefInput}>
+                <input className='hidden' type='file' accept='image/*'
+                       onChange={this.openFile}
+                />
+              </RootRef>
+            }
+            <DrawerContainer user={this.state.user} online={this.state.online}
+              handleClickLoginLogout={this.handleClickLoginLogout}
+              leftDrawerOpen={this.state.leftDrawerOpen} toggleLeftDrawer={this.toggleLeftDrawer}
+              stats={this.state.stats}
             />
-          </RootRef>
+          </div>
         }
-
-        <Login
-          open={this.state.loginLogoutDialogOpen && !this.state.user}
-          handleClose={this.handleLoginClose}
-          loginComponent={LoginFirebase}
-        />
-
-        <DrawerContainer user={this.state.user} online={this.state.online}
-          handleClickLoginLogout={this.handleClickLoginLogout}
-          leftDrawerOpen={this.state.leftDrawerOpen} toggleLeftDrawer={this.toggleLeftDrawer}
-          stats={this.state.stats}
-        />
-
       </div>
     );
   }
