@@ -81,7 +81,7 @@ class DrawerContainer extends Component {
       {
         visible: online,
         icon: <ExitToAppIcon/>,
-        label: user ? 'Logout' : 'Login',
+        label: 'Logout',
         click: this.props.handleClickLoginLogout
       }
     ];

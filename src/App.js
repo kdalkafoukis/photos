@@ -56,7 +56,8 @@ class App extends Component {
       openPhotoDialog: false,
       leftDrawerOpen: false,
       welcomeShown: !!localStorage.getItem("welcomeShown"),
-      photos: Promise.resolve([])
+      photos: Promise.resolve([]),
+      loggedIn: false
     };
 
     this.geoid = null;
@@ -126,6 +127,11 @@ class App extends Component {
         window.location.reload();
       }
       this.setState({ user });
+
+      if (user) {
+        localStorage.setItem("loggedIn",false);
+        this.setState({ loggedIn:true }); //just to trigger the rerendering
+      }
     });
 
     this.unregisterLocationObserver = this.setLocationWatcher();
@@ -158,6 +164,7 @@ class App extends Component {
 
   handleClickLoginLogout = () => {
     if (this.state.user) {
+      localStorage.removeItem("loggedIn");
       authFirebase.signOut();
     }
   };
@@ -206,14 +213,14 @@ class App extends Component {
 
   toggleLeftDrawer = (isItOpen) => () => {
     gtagEvent(isItOpen ? 'Opened' : 'Closed','Menu');
-    this.setState({leftDrawerOpen: isItOpen})
+    this.setState({leftDrawerOpen: isItOpen});
   };
 
   render() {
     const { classes } = this.props;
     return (
       <div className='geovation-app'>
-        {!this.state.user
+        {!localStorage.getItem("loggedIn")
           ?
           <Login
             loginComponent={LoginFirebase}
