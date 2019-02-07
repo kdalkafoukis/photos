@@ -65,7 +65,8 @@ const styles = theme => ({
     paddingBottom: isIphoneWithNotchAndCordova() ? 'env(safe-area-inset-bottom)' : 0
   },
   snackbar: {
-    maxHeight: 10
+    maxHeight: 8,
+    fontSize: 10
     // backgroundColor:theme.palette.primary.main,
     // color:theme.palette.secondary.main
   }
@@ -233,7 +234,10 @@ class PhotoPage extends Component {
     }
 
     if ( (prevProps.online !== this.props.online) && !this.state.sending  && this.state.control=== true ){
-      this.setState({ sending : true , control: true});
+      this.setState({
+        sending : true,
+        control: false
+      });
     }
 
   }
@@ -310,24 +314,13 @@ class PhotoPage extends Component {
                 <div style={{display:'flex'}}>
                   <CircularProgress
                     color='secondary'
-                    size={20}
+                    size={10}
                     thickness={6}/>
                   <div className={classes.snackbarMessage} style={{paddingLeft:20}}>
                     The photo is uploading ...
                   </div>
                 </div>
               }
-              action={[
-                <IconButton
-                  key="close"
-                  aria-label="Close"
-                  color="inherit"
-                  className={classes.close}
-                  onClick={this.handleClose}
-                >
-                  <CloseIcon className={classes.icon} />
-                </IconButton>,
-              ]}
             />
           </Snackbar>
 
