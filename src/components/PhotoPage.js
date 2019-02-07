@@ -11,6 +11,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+
+import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -32,7 +36,11 @@ const emptyState = {
   message: '',
   field: '',
   sending: false,
-  error: !''.match(config.PHOTO_FIELD.regexValidation)
+  error: !''.match(config.PHOTO_FIELD.regexValidation),
+  openSnackbar:true,
+  dialogText:`You have no network,the photo will finish uploading when the
+    network is back`,
+  control: false
 };
 
 const styles = theme => ({
@@ -55,6 +63,11 @@ const styles = theme => ({
   },
   notchBottom: {
     paddingBottom: isIphoneWithNotchAndCordova() ? 'env(safe-area-inset-bottom)' : 0
+  },
+  snackbar: {
+    maxHeight: 10
+    // backgroundColor:theme.palette.primary.main,
+    // color:theme.palette.secondary.main
   }
 });
 
@@ -64,6 +77,7 @@ class PhotoPage extends Component {
     this.state = {...emptyState};
     this.dialogCloseCallback = null;
   }
+
 
   resetState = () => {
     this.setState(emptyState);
@@ -78,7 +92,6 @@ class PhotoPage extends Component {
 
   openDialog = (message, fn) => {
     this.setState({
-      sending: false,
       open: true,
       message
     });
@@ -143,10 +156,10 @@ class PhotoPage extends Component {
 
         try {
           const res = await dbFirebase.uploadPhoto(data);
-          console.log(res);
-          this.openDialog("Photo was uploaded successfully. It will be reviewed by our moderation team.", this.handleClosePhotoPage);
+          this.handleClose();
+          this.props.openDialog("Photo was uploaded successfully. It will be reviewed by our moderation team.");
         } catch (e) {
-          this.openDialog(e.message || e);
+          this.props.openDialog(e.message || e);
         }
       } else {
         this.openDialog("Please enter some text");
@@ -201,8 +214,10 @@ class PhotoPage extends Component {
   };
 
   handleClose = () => {
-    this.setState({ sending:false })
+    this.setState({ sending:false });
   }
+
+
 
   componentDidMount() {
     this.loadImage();
@@ -212,6 +227,15 @@ class PhotoPage extends Component {
     if (prevProps.file !== this.props.file) {
       this.loadImage();
     }
+    if ( (prevProps.online !== this.props.online) && this.state.sending) {
+      this.openDialog("Can't Connect to our servers. When you connect upload will resume");
+      this.setState({ sending : false , control: true});
+    }
+
+    if ( (prevProps.online !== this.props.online) && !this.state.sending  && this.state.control=== true ){
+      this.setState({ sending : true , control: true});
+    }
+
   }
 
   render() {
@@ -275,21 +299,38 @@ class PhotoPage extends Component {
             </DialogActions>
           </Dialog>
 
-          <Dialog open={this.state.sending}>
-            <DialogActions>
-              <CloseIcon onClick={this.handleClose} />
-            </DialogActions>
-            <DialogContent>
-              <DialogContentText id="loading-dialog-text">
-                Be patient ;)
-              </DialogContentText>
-              <CircularProgress
-              className={classes.progress}
-               color='secondary'
-               size={50}
-               thickness={6}/>
-            </DialogContent>
-          </Dialog>
+          <Snackbar
+            open={this.state.sending}
+            anchorOrigin={{ horizontal:'center', vertical:'top' }}
+          >
+          <SnackbarContent
+            className={classes.snackbar}
+
+              message={
+                <div style={{display:'flex'}}>
+                  <CircularProgress
+                    color='secondary'
+                    size={20}
+                    thickness={6}/>
+                  <div className={classes.snackbarMessage} style={{paddingLeft:20}}>
+                    The photo is uploading ...
+                  </div>
+                </div>
+              }
+              action={[
+                <IconButton
+                  key="close"
+                  aria-label="Close"
+                  color="inherit"
+                  className={classes.close}
+                  onClick={this.handleClose}
+                >
+                  <CloseIcon className={classes.icon} />
+                </IconButton>,
+              ]}
+            />
+          </Snackbar>
+
         </PageWrapper>
       </div>
     );

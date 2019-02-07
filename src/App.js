@@ -21,6 +21,11 @@ import TutorialPage from './components/TutorialPage';
 import WelcomePage from './components/WelcomePage';
 import WriteFeedbackPage from './components/WriteFeedbackPage';
 import DrawerContainer from './components/DrawerContainer';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import Button from '@material-ui/core/Button';
 
 import config from './custom/config';
 import './App.scss';
@@ -59,7 +64,9 @@ class App extends Component {
       openPhotoDialog: false,
       leftDrawerOpen: false,
       welcomeShown: !!localStorage.getItem("welcomeShown"),
-      photos: Promise.resolve([])
+      photos: Promise.resolve([]),
+      open:false,
+      dialogText:''
     };
 
     this.geoid = null;
@@ -231,6 +238,15 @@ class App extends Component {
     this.setState({leftDrawerOpen: isItOpen})
   };
 
+  closeDialog = () => {
+    this.setState({ open: false });
+    this.goToMap();
+  }
+
+  openDialog = (dialogText) => {
+    this.setState({ open: true,dialogText });
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -265,6 +281,7 @@ class App extends Component {
                            handlePhotoClick={this.handlePhotoClick}
                            handleClose={this.goToMap}
                            label={PAGES.photos.label}
+                           openDialog={this.openDialog}
                 />}
               />
 
@@ -320,6 +337,24 @@ class App extends Component {
             <AddAPhotoIcon />
           </Fab>
         </main>
+
+        <Dialog
+          open={this.state.open}
+          onClose={this.closeDialog}
+          aria-labelledby='alert-dialog-title'
+          aria-describedby='alert-dialog-description'
+        >
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              {this.state.dialogText}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.closeDialog} color='secondary'>
+              Ok
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Snackbar open={this.state.welcomeShown && (!this.state.online || !this.state.online2 )} message='Network not available' />
 
