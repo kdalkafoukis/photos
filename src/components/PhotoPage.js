@@ -11,13 +11,16 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
+
 import { withStyles } from '@material-ui/core/styles';
 
 import config from '../custom/config';
 import { gtagEvent } from '../gtag.js';
 import './PhotoPage.scss';
 import dbFirebase from '../dbFirebase';
-import { isIphoneWithNotchAndCordova } from '../utils'
+import { isIphoneWithNotchAndCordova } from '../utils';
+
 
 import PageWrapper from './PageWrapper';
 
@@ -197,6 +200,10 @@ class PhotoPage extends Component {
     this.handleClosePhotoPage();
   };
 
+  handleClose = () => {
+    this.setState({ sending:false })
+  }
+
   componentDidMount() {
     this.loadImage();
   }
@@ -269,6 +276,9 @@ class PhotoPage extends Component {
           </Dialog>
 
           <Dialog open={this.state.sending}>
+            <DialogActions>
+              <CloseIcon onClick={this.handleClose} />
+            </DialogActions>
             <DialogContent>
               <DialogContentText id="loading-dialog-text">
                 Be patient ;)
