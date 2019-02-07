@@ -261,7 +261,7 @@ class App extends Component {
                 <PhotoPage {...props}
                            file={this.state.file}
                            gpsLocation={this.state.location}
-                           online={this.state.online}
+                           online={this.state.online && this.state.online2}
                            handlePhotoClick={this.handlePhotoClick}
                            handleClose={this.goToMap}
                            label={PAGES.photos.label}
@@ -282,7 +282,7 @@ class App extends Component {
                  <WriteFeedbackPage {...props}
                                     user={this.state.user}
                                     location={this.state.location}
-                                    online={this.state.online}
+                                    online={this.state.online && this.state.online2}
                                     handleClose={this.goToMap}
                                     label={PAGES.writeFeedback.label}
                  />}
@@ -339,7 +339,7 @@ class App extends Component {
           loginComponent={LoginFirebase}
         />
 
-        <DrawerContainer user={this.state.user} online={this.state.online}
+        <DrawerContainer user={this.state.user} online={this.state.online && this.state.online2}
           handleClickLoginLogout={this.handleClickLoginLogout}
           leftDrawerOpen={this.state.leftDrawerOpen} toggleLeftDrawer={this.toggleLeftDrawer}
           stats={this.state.stats}

@@ -122,14 +122,14 @@ class PhotoPage extends Component {
 
     // try getting the location from the photo first
     const photoLocation = this.getLocationFromExifMetadata(this.state.imgExif);
-    //
-    // if (!photoLocation && !this.props.gpsLocation.online) {
-    //   this.openDialog("Could not get the location yet. You won't be able to upload an image.");
-    // } else if (!this.props.online) {
-    //   this.openDialog("Can't Connect to our servers. You won't be able to upload an image.");
-    // } else if (!this.state.imgSrc) {
-    //   this.openDialog("No picture is selected. Please choose a picture.");
-    // } else {
+
+    if (!photoLocation && !this.props.gpsLocation.online) {
+      this.openDialog("Could not get the location yet. You won't be able to upload an image.");
+    } else if (!this.props.online) {
+      this.openDialog("Can't Connect to our servers. You won't be able to upload an image.");
+    } else if (!this.state.imgSrc) {
+      this.openDialog("No picture is selected. Please choose a picture.");
+    } else {
 
       const data = {
         ...this.props.gpsLocation,
@@ -152,7 +152,7 @@ class PhotoPage extends Component {
         this.openDialog("Please enter some text");
       }
 
-    // }
+    }
   }
 
   loadImage = () => {
