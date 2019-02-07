@@ -54,6 +54,7 @@ class App extends Component {
       user: null,
       photosToModerate: [],
       online: false,
+      online2: true,
       loginLogoutDialogOpen: false,
       openPhotoDialog: false,
       leftDrawerOpen: false,
@@ -106,6 +107,17 @@ class App extends Component {
 
 
   componentDidMount(){
+
+    window.addEventListener('offline', ()=>{
+      console.log('offline');
+      this.setState({ online2 : false });
+    });
+
+    window.addEventListener('online', ()=>{
+      console.log('online');
+      this.setState({ online2 : true });
+    });
+
     gtagPageView(this.props.location.pathname);
 
     const photos = dbFirebase.fetchPhotos();
@@ -309,7 +321,7 @@ class App extends Component {
           </Fab>
         </main>
 
-        <Snackbar open={this.state.welcomeShown && !this.state.online} message='Network not available' />
+        <Snackbar open={this.state.welcomeShown && (!this.state.online || !this.state.online2 )} message='Network not available' />
 
         { window.cordova ?
           <CustomPhotoDialog open={this.state.openPhotoDialog} onClose={this.handlePhotoDialogClose}/>
