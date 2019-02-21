@@ -21,6 +21,15 @@ const onAuthStateChanged = (fn) => {
       const fbUser = await dbFirebase.getUser(user.uid);
       const isModerator = fbUser ? fbUser.isModerator : false;
       currentUser = new User(currentUser.uid, currentUser.displayName, isModerator, currentUser.email, currentUser.emailVerified, currentUser.isAnonymous, currentUser.phoneNumber, currentUser.photoURL || "https://www.gravatar.com/avatar/" + md5(user.email));
+
+      const isEmailSentAlready = window.localStorage.getItem('emailForSignIn');
+      if (!currentUser.emailVerified && !isEmailSentAlready) {
+        user.sendEmailVerification()
+        .then(() => {
+          window.localStorage.setItem('emailForSignIn',currentUser.email);
+        })
+        .catch(error => console.log(error));
+      }
     }
     fn(currentUser);
   };
