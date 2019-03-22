@@ -276,34 +276,19 @@ class SelectControl extends React.Component {
     return listWithNodes;
   }
 
-  getItems = (tree) => {
-    let items = [];
-
-    function getNodesInLowestHierarchy(tree){
-      Object.entries(tree).forEach( ([key,value]) => {
-        if (!value.children) {
-          items.push({ label: value.label, key: key });
-        }
-        else {
-          getNodesInLowestHierarchy(value.children);
-        }
-      });
-    }
-
-    getNodesInLowestHierarchy(tree);
-    return items;
-  }
-
   initializeOptions = (data) => {
-    const options = Object
-                  .entries(data)
-                  .map(([key,value]) => ({label: value.label, key: key }));
+    const ancestors = data.map(element => element.categories[0]);
+    const set = new Set(ancestors);
+
+    let options = [];
+    set.forEach(element => options.push({label: element}));
+
     this.options = options;
     this.setState({ options });
   }
 
   componentDidMount(){
-    this.items = this.getItems(this.props.data);
+    this.items = this.props.data;
     this.initializeOptions(this.props.data);
   }
 
@@ -326,22 +311,24 @@ class SelectControl extends React.Component {
             classes={classes}
             styles={selectStyles}
             components={components}
-            value={this.state.multi}
-            onChange={this.handleChange('multi')}
             menuPosition='fixed'
             placeholder={this.props.placeholder}
-            options={this.state.options}
             isMulti
             getOptionValue={(option) => (option['label'])}
             noOptionsMessage={() => noOptionsMessage}
-            onInputChange={(e) => this.handleInputChange(e)}
-            menuIsOpen={this.state.menuIsOpen}
-            onFocus={() => this.setState({ menuIsOpen: true })}
-            onBlur={() => {
-              if (this.onBlurMenuShouldClose) {
-                this.setState({ menuIsOpen: false });
-              }
-            }}
+
+            value={this.state.multi}
+            onChange={this.handleChange('multi')}
+            options={this.state.options}
+
+            // onInputChange={(e) => this.handleInputChange(e)}
+            // menuIsOpen={this.state.menuIsOpen}
+            // onFocus={() => this.setState({ menuIsOpen: true })}
+            // onBlur={() => {
+            //   if (this.onBlurMenuShouldClose) {
+            //     this.setState({ menuIsOpen: false });
+            //   }
+            // }}
           />
         </NoSsr>
       </div>
